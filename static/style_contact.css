@@ -5,7 +5,7 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden; /* No scrolling */
+    overflow: hidden; /* No scrolling on main body */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(90deg, #c79494, #7c8655);
     color: #e2e2e2;
@@ -27,36 +27,55 @@ html, body {
     flex: 1;
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 60px; /* spacing between cards */
-    padding: 20px;
+    align-items: stretch; /* stretch to fill height */
+    gap: 50px;            /* spacing between columns */
+    padding: 117px 40px 45px 40px; /* balanced spacing between fixed navbar (top) and footer (bottom) */
+    max-width: 1300px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;    /* hide content area overflow */
 }
 
 /* ============================ */
-/* CONTACT CARD & MESSAGE FORM  */
+/* LEFT COLUMN (ABOUT + CONTACT)*/
 /* ============================ */
-.contact-card,
-.message-form {
-    width: 500px;  /* larger width */
-    height: 600px; /* larger height */
-    padding: 30px;
-    border-radius: 12px;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+.left-column {
+    flex: 1.1;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    gap: 20px;
+    max-height: 100%;
+    overflow-y: auto;
+    padding-right: 15px;
     box-sizing: border-box;
 }
 
-/* ============================ */
-/* HEADINGS                     */
-/* ============================ */
-.contact-card h2,
-.message-form h2 {
-    text-align: center;
+.about-card,
+.contact-card {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 30px;
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.about-card h2,
+.contact-card h2 {
     color: #ffffff;
-    margin-bottom: 25px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.about-card p {
+    line-height: 1.6;
+    margin-bottom: 15px;
+    color: #f2f2f2;
+}
+
+.about-card p:last-child {
+    margin-bottom: 0;
 }
 
 /* ============================ */
@@ -68,22 +87,21 @@ html, body {
     color: #f2f2f2;
     padding: 12px 0;
     font-size: 1.1rem;
-
     display: flex;
-    align-items: center; /* vertically center icon + text */
+    align-items: center;
 }
 
 .contact-card .list-group-item i {
-    width: 15px;        /* fixed width for all icons */
-    text-align: center; /* ensures text aligns horizontally */
-    font-size: 1.2rem;
+    width: 20px;
+    text-align: center;
+    font-size: 1.25rem;
     flex-shrink: 0;
 }
 
 .contact-card .list-group-item a {
     color: #ffffff;
     text-decoration: none;
-    margin-left: 12px;  /* spacing between icon and text */
+    margin-left: 15px;
     transition: 0.3s ease;
 }
 
@@ -92,37 +110,61 @@ html, body {
 }
 
 .contact-card .badge.bg-secondary {
-    background: rgba(255,255,255,0.3) !important;
+    background: rgba(255, 255, 255, 0.25) !important;
     color: #ffffff;
+    font-weight: 600;
 }
 
 /* ============================ */
-/* FORM ELEMENTS                */
+/* RIGHT COLUMN (IMAGE GALLERY) */
 /* ============================ */
-.message-form label {
-    color: #ffffff;
+.image-gallery {
+    flex: 0.9;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-height: 100%;
+    overflow-y: auto;
+    padding-right: 15px;
+    box-sizing: border-box;
 }
 
-.message-form .form-control {
-    background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.25);
-    color: #ffffff;
+.image-gallery img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.message-form .form-control:focus {
-    background: rgba(0,0,0,0.45);
-    border-color: #f3c1c1;
-    color: #ffffff;
+.image-gallery img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
 }
 
-.message-form .btn-outline-light {
-    border-radius: 6px;
-    transition: 0.3s ease;
-    margin-top: auto; /* push button to bottom if extra space */
+/* ============================ */
+/* CUSTOM VISUALLY APPEALING SCROLLBARS */
+/* ============================ */
+.image-gallery::-webkit-scrollbar,
+.left-column::-webkit-scrollbar {
+    width: 6px;
 }
 
-.message-form .btn-outline-light:hover {
-    background: #ffffff;
-    color: #000000 !important;
+.image-gallery::-webkit-scrollbar-track,
+.left-column::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
 }
 
+.image-gallery::-webkit-scrollbar-thumb,
+.left-column::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.image-gallery::-webkit-scrollbar-thumb:hover,
+.left-column::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.45);
+}
