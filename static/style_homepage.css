@@ -119,3 +119,94 @@ html, body {
 .list-group-item strong {
     color: #ffd5d5;
 }
+
+/* Hide mobile homepage by default on desktop */
+.mobile-homepage-wrapper {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    /* Hide desktop elements */
+    #navbar-container,
+    .hero,
+    #footer-container {
+        display: none !important;
+    }
+    
+    html, body {
+        overflow: hidden; /* Prevent scrolling on homepage */
+        height: 100vh;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .mobile-homepage-wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        height: 100vh;
+        width: 100%;
+        background-image: url('/static/images/Maria_en_etienne4.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        padding: 60px 20px 40px 20px;
+        box-sizing: border-box;
+    }
+    
+    .mobile-brand {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #ffffff;
+        text-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+        letter-spacing: 0.05em;
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .mobile-buttons-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+        max-width: 280px;
+    }
+    
+    .btn-mobile-outline {
+        background: rgba(0, 0, 0, 0.45);
+        border: 2px solid #ffffff;
+        color: #ffffff !important;
+        font-size: 1.3rem;
+        font-weight: 600;
+        padding: 16px 0;
+        text-align: center;
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-mobile-outline:hover {
+        background: #ffffff;
+        color: #000000 !important;
+        box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+    }
+    
+    .mobile-photo-credit {
+        font-size: 0.7rem;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 6px 12px;
+        border-radius: 6px;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+    
+    .mobile-photo-credit a {
+        color: #ffffff;
+        text-decoration: none;
+    }
+}
