@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=VT323&display=swap');
+
 /* ======================================= */
 /* 1. GLOBAL STYLES & LAYOUT (BODY/HTML)   */
 /* ======================================= */
@@ -260,4 +262,191 @@ html, body {
         width: 22px;
         height: 22px;
     }
+}
+
+/* ======================================= */
+/* 6. GAME OPTIONS MODAL & LEADERBOARD     */
+/* ======================================= */
+.game-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.game-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.game-modal-content {
+    background-color: #0c0500;
+    border: 2px solid #ffb000;
+    box-shadow: 0 0 25px rgba(255, 176, 0, 0.4);
+    border-radius: 8px;
+    padding: 30px;
+    width: 90%;
+    max-width: 550px;
+    position: relative;
+    font-family: 'Fira Code', Courier, monospace;
+    color: #ffb000;
+    text-shadow: 0 0 4px rgba(255, 176, 0, 0.4);
+    box-sizing: border-box;
+}
+
+.close-modal-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: #ffb000;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.close-modal-btn:hover {
+    color: #ff3333;
+    text-shadow: 0 0 8px #ff3333;
+}
+
+.modal-title {
+    font-family: 'VT323', monospace;
+    font-size: 2.2rem;
+    margin-bottom: 5px;
+    text-align: center;
+    letter-spacing: 0.05em;
+}
+
+.modal-divider {
+    height: 2px;
+    background: repeating-linear-gradient(
+        95deg,
+        #ffb000,
+        #ffb000 10px,
+        transparent 10px,
+        transparent 20px
+    );
+    margin-bottom: 25px;
+}
+
+#modal-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.modal-choice-btn {
+    background: transparent;
+    border: 2px solid #ffb000;
+    color: #ffb000;
+    padding: 15px;
+    font-family: 'Fira Code', monospace;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.modal-choice-btn:hover {
+    background: rgba(255, 176, 0, 0.1);
+    box-shadow: 0 0 15px rgba(255, 176, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Leaderboard Specifics */
+.leaderboard-title {
+    font-family: 'VT323', monospace;
+    font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.leaderboard-list-container {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #4e3500;
+    background: rgba(255, 176, 0, 0.03);
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+/* Hide scrollbar for clean terminal look */
+.leaderboard-list-container::-webkit-scrollbar {
+    width: 6px;
+}
+.leaderboard-list-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+.leaderboard-list-container::-webkit-scrollbar-thumb {
+    background: #4e3500;
+    border-radius: 3px;
+}
+.leaderboard-list-container::-webkit-scrollbar-thumb:hover {
+    background: #a57200;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.leaderboard-table th, .leaderboard-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 176, 0, 0.15);
+}
+
+.leaderboard-table th {
+    color: #a57200;
+    font-weight: bold;
+    border-bottom: 2px solid #4e3500;
+}
+
+.leaderboard-name {
+    color: #3df1ff;
+    text-shadow: 0 0 5px rgba(61, 241, 255, 0.5);
+}
+
+.leaderboard-loading {
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+    color: #a57200;
+}
+
+.modal-back-btn {
+    background: transparent;
+    border: 1px solid #a57200;
+    color: #a57200;
+    padding: 8px 16px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.modal-back-btn:hover {
+    color: #ffb000;
+    border-color: #ffb000;
+    background: rgba(255, 176, 0, 0.05);
+}
+
+.hidden {
+    display: none !important;
 }

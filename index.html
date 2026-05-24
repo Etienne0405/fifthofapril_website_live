@@ -45,13 +45,145 @@
     </div>
 
     <!-- Retro Game Floating Button -->
-    <a href="game.html" class="game-floating-btn" id="game-btn" aria-label="Play Escape Room Game">
+    <a href="#" class="game-floating-btn" id="game-btn" aria-label="Play Escape Room Game">
         <img src="static/images/fitgirl.webp" alt="Play Game" class="game-btn-img">
     </a>
+
+    <!-- Custom Modal for Game / Leaderboard Options -->
+    <div id="game-modal" class="game-modal">
+        <div class="game-modal-content">
+            <span class="close-modal-btn" id="close-modal-btn">&times;</span>
+            <h2 class="modal-title">ESCAPE TERMINAL OS v1.0.1</h2>
+            <div class="modal-divider"></div>
+            
+            <div id="modal-choices">
+                <button id="play-game-btn" class="modal-choice-btn">▶ PLAY ESCAPE GAME</button>
+                <button id="view-leaderboard-btn" class="modal-choice-btn">🏆 VIEW LEADERBOARD</button>
+            </div>
+            
+            <div id="leaderboard-view" class="hidden">
+                <h3 class="leaderboard-title">HALL OF FAME</h3>
+                <div class="leaderboard-list-container">
+                    <table class="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Completion Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                    <div id="leaderboard-loading" class="leaderboard-loading">CONNECTING TO DATABASE...</div>
+                    <div id="leaderboard-empty" class="leaderboard-loading hidden">NO COMPLETIONS RECORDED YET</div>
+                </div>
+                <button id="back-to-choices-btn" class="modal-back-btn">◀ BACK</button>
+            </div>
+        </div>
+    </div>
 
     <!-- FOOTER -->
     <div id="footer-container"></div>
     <script src="static/footer/footer.js" defer></script>
+
+    <!-- Leaderboard Modal Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const gameBtn = document.getElementById('game-btn');
+            const modal = document.getElementById('game-modal');
+            const closeBtn = document.getElementById('close-modal-btn');
+            const playBtn = document.getElementById('play-game-btn');
+            const viewLbBtn = document.getElementById('view-leaderboard-btn');
+            const backBtn = document.getElementById('back-to-choices-btn');
+            
+            const choicesDiv = document.getElementById('modal-choices');
+            const lbViewDiv = document.getElementById('leaderboard-view');
+            const lbBody = document.getElementById('leaderboard-body');
+            const lbLoading = document.getElementById('leaderboard-loading');
+            const lbEmpty = document.getElementById('leaderboard-empty');
+
+            // Open modal on clicking fitgirl
+            gameBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                modal.classList.add('show');
+                choicesDiv.classList.remove('hidden');
+                lbViewDiv.classList.add('hidden');
+            });
+
+            // Close modal
+            const closeModal = () => {
+                modal.classList.remove('show');
+            };
+            closeBtn.addEventListener('click', closeModal);
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // Play Game
+            playBtn.addEventListener('click', () => {
+                window.location.href = 'game.html';
+            });
+
+            // View Leaderboard
+            viewLbBtn.addEventListener('click', async () => {
+                choicesDiv.classList.add('hidden');
+                lbViewDiv.classList.remove('hidden');
+                
+                lbBody.innerHTML = '';
+                lbLoading.textContent = 'CONNECTING TO DATABASE...';
+                lbLoading.classList.remove('hidden');
+                lbEmpty.classList.add('hidden');
+                
+                try {
+                    const res = await fetch('https://kvdb.io/Fo7oihsgjUj97nLNkW5SHL/leaderboard');
+                    if (res.ok) {
+                        const data = await res.json();
+                        lbLoading.classList.add('hidden');
+                        
+                        if (data && data.length > 0) {
+                            // Sort so that recent completions are at the top
+                            const reversedData = [...data].reverse();
+                            reversedData.forEach((player, idx) => {
+                                const tr = document.createElement('tr');
+                                
+                                const tdRank = document.createElement('td');
+                                tdRank.textContent = data.length - idx;
+                                
+                                const tdName = document.createElement('td');
+                                tdName.textContent = player.name;
+                                tdName.className = 'leaderboard-name';
+                                
+                                const tdDate = document.createElement('td');
+                                tdDate.textContent = player.date || 'Unknown';
+                                
+                                tr.appendChild(tdRank);
+                                tr.appendChild(tdName);
+                                tr.appendChild(tdDate);
+                                lbBody.appendChild(tr);
+                            });
+                        } else {
+                            lbEmpty.classList.remove('hidden');
+                        }
+                    } else {
+                        lbLoading.textContent = 'ERROR CONNECTING TO DATABASE';
+                    }
+                } catch (err) {
+                    console.error(err);
+                    lbLoading.textContent = 'DATABASE OFFLINE';
+                }
+            });
+
+            // Back to choices
+            backBtn.addEventListener('click', () => {
+                choicesDiv.classList.remove('hidden');
+                lbViewDiv.classList.add('hidden');
+            });
+        });
+    </script>
 
 </body>
 

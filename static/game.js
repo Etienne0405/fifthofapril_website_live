@@ -1851,6 +1851,39 @@ async function endGame() {
     Terminal.write("\n========================================", "system-success");
     Terminal.write("                YOU WIN!!!              ", "system-success");
     Terminal.write("========================================\n", "system-success");
+    
+    // Hall of Fame name prompt
+    Terminal.write("please enter your name to enter hall of fame:");
+    const name = (await Terminal.input()).trim();
+    if (name) {
+        Terminal.write("\nSaving your name to the Hall of Fame...", "system-info");
+        try {
+            // 1. Fetch current leaderboard
+            const res = await fetch("https://kvdb.io/Fo7oihsgjUj97nLNkW5SHL/leaderboard");
+            let leaderboard = [];
+            if (res.ok) {
+                leaderboard = await res.json();
+            }
+            // 2. Add name
+            leaderboard.push({ name: name, date: new Date().toLocaleDateString() });
+            
+            // 3. Save leaderboard back
+            const saveRes = await fetch("https://kvdb.io/Fo7oihsgjUj97nLNkW5SHL/leaderboard", {
+                method: "POST",
+                body: JSON.stringify(leaderboard)
+            });
+            if (saveRes.ok) {
+                Terminal.write("Your name has been successfully added to the Hall of Fame!\n", "system-success");
+            } else {
+                Terminal.write("Failed to save your name to the Hall of Fame.\n", "system-alert");
+            }
+        } catch (e) {
+            console.error("Error saving leaderboard:", e);
+            Terminal.write("Failed to save your name to the Hall of Fame.\n", "system-alert");
+        }
+        await sleep(1500);
+    }
+    
     Terminal.write("Press Enter to return to website...");
     await Terminal.input();
     window.location.href = "index.html";
