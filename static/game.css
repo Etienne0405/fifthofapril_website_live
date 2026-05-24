@@ -1,0 +1,639 @@
+/* ==========================================================================
+   RETRO TERMINAL STYLING (game.css)
+   ========================================================================== */
+
+:root {
+    --bg-color: #0c0500;
+    --terminal-green: #ffb000;
+    --terminal-dim-green: #a57200;
+    --terminal-bg-green: rgba(255, 176, 0, 0.05);
+    --crt-glow: rgba(255, 176, 0, 0.15);
+    --border-color: #4e3500;
+    --font-family: 'Fira Code', 'VT323', monospace;
+
+    --uv-green: #39ff14;
+    --uv-glow: rgba(57, 255, 20, 0.6);
+}
+
+.uv-highlight {
+    color: var(--uv-green) !important;
+    text-shadow: 0 0 8px var(--uv-glow) !important;
+    font-weight: bold;
+}
+
+.terminal-body {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.terminal-sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    border-left: 2px solid var(--border-color);
+    background-color: var(--terminal-bg-green);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 24px;
+    overflow-y: auto;
+    font-family: var(--font-family);
+    user-select: none;
+    z-index: 50;
+}
+
+.sidebar-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sidebar-title {
+    font-weight: bold;
+    color: var(--terminal-dim-green);
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 6px;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+}
+
+.status-item {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.status-bar {
+    height: 14px;
+    background-color: rgba(255, 176, 0, 0.08);
+    border: 1px solid var(--border-color);
+    padding: 1px;
+    border-radius: 2px;
+}
+
+.status-bar-fill {
+    height: 100%;
+    background-color: var(--terminal-green);
+    box-shadow: 0 0 8px var(--terminal-green);
+    transition: width 0.3s ease;
+    width: 100%;
+}
+
+#sidebar-inventory {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+#sidebar-inventory li {
+    position: relative;
+    padding-left: 14px;
+}
+
+#sidebar-inventory li::before {
+    content: "▶";
+    position: absolute;
+    left: 0;
+    color: var(--terminal-dim-green);
+    font-size: 0.75rem;
+    top: 2px;
+}
+
+#sidebar-inventory li.empty-item {
+    padding-left: 0;
+    color: var(--terminal-dim-green);
+    font-style: italic;
+}
+
+#sidebar-inventory li.empty-item::before {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .terminal-body {
+        flex-direction: column-reverse;
+    }
+    .terminal-sidebar {
+        width: 100%;
+        height: auto;
+        border-left: none;
+        border-top: 2px solid var(--border-color);
+        padding: 15px;
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 15px;
+    }
+    .sidebar-section {
+        flex: 1;
+        gap: 6px;
+    }
+    #sidebar-inventory {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px 12px;
+    }
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bg-color);
+    color: var(--terminal-green);
+    font-family: var(--font-family);
+    font-size: 15px;
+    line-height: 1.5;
+    overflow: hidden;
+    text-shadow: 0 0 4px var(--crt-glow);
+}
+
+/* ==========================================================================
+   BOOT SCREEN OVERLAY
+   ========================================================================== */
+.boot-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #010501;
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.boot-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.boot-modal {
+    max-width: 500px;
+    width: 100%;
+    background: rgba(4, 16, 4, 0.9);
+    border: 2px solid var(--terminal-green);
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(255, 176, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.boot-title {
+    font-family: 'VT323', monospace;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    letter-spacing: 0.1em;
+    color: var(--terminal-green);
+}
+
+.boot-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--terminal-dim-green);
+    border-top: 3px solid var(--terminal-green);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 25px;
+}
+
+.boot-text {
+    font-size: 0.95rem;
+    color: var(--terminal-dim-green);
+    margin-bottom: 30px;
+    height: 24px;
+}
+
+.boot-btn {
+    background: transparent;
+    border: 2px solid var(--terminal-green);
+    color: var(--terminal-green);
+    padding: 12px 28px;
+    font-family: var(--font-family);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 10px rgba(255, 176, 0, 0.1);
+    letter-spacing: 0.05em;
+}
+
+.boot-btn:hover {
+    background: var(--terminal-green);
+    color: #000;
+    box-shadow: 0 0 20px var(--terminal-green);
+    text-shadow: none;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   TERMINAL SCREEN & MAIN CONTAINER
+   ========================================================================== */
+.terminal-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    border: 10px solid #111;
+    background-color: var(--bg-color);
+}
+
+/* CRT Screen Effects */
+.crt-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1.5px,
+        transparent 1.5px,
+        transparent 3px
+    );
+    pointer-events: none;
+    z-index: 100;
+}
+
+.crt-vignette {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+    z-index: 101;
+}
+
+.crt-flicker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(18, 16, 16, 0.05);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 102;
+    animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+    0% { opacity: 0.27861; }
+    5% { opacity: 0.34769; }
+    10% { opacity: 0.23604; }
+    15% { opacity: 0.90626; }
+    20% { opacity: 0.18128; }
+    25% { opacity: 0.83891; }
+    30% { opacity: 0.65583; }
+    35% { opacity: 0.67807; }
+    40% { opacity: 0.26559; }
+    45% { opacity: 0.84693; }
+    50% { opacity: 0.96019; }
+    55% { opacity: 0.13594; }
+    60% { opacity: 0.88013; }
+    65% { opacity: 0.48371; }
+    70% { opacity: 0.04029; }
+    75% { opacity: 0.58053; }
+    80% { opacity: 0.85754; }
+    85% { opacity: 0.54418; }
+    90% { opacity: 0.32924; }
+    95% { opacity: 0.83545; }
+    100% { opacity: 0.18313; }
+}
+
+/* Header bar */
+.terminal-header {
+    height: 38px;
+    background-color: rgba(20, 40, 20, 0.4);
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    z-index: 50;
+    user-select: none;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.status-dot.green {
+    background-color: var(--terminal-green);
+    box-shadow: 0 0 8px var(--terminal-green);
+}
+
+.header-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--terminal-dim-green);
+    padding: 3px 10px;
+    font-family: var(--font-family);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    margin-left: 8px;
+}
+
+.header-btn:hover {
+    color: var(--terminal-green);
+    border-color: var(--terminal-green);
+    background: rgba(255, 176, 0, 0.05);
+}
+
+.close-btn:hover {
+    color: #ff3333;
+    border-color: #ff3333;
+    background: rgba(255, 51, 51, 0.05);
+    text-shadow: 0 0 4px rgba(255, 51, 51, 0.5);
+}
+
+/* Screen Output Window */
+.terminal-screen {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    scroll-behavior: smooth;
+}
+
+/* Hide scrollbar for clean terminal look */
+.terminal-screen::-webkit-scrollbar {
+    width: 6px;
+}
+.terminal-screen::-webkit-scrollbar-track {
+    background: transparent;
+}
+.terminal-screen::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+.terminal-screen::-webkit-scrollbar-thumb:hover {
+    background: var(--terminal-dim-green);
+}
+
+.output-log {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.log-line {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* ASCII art lines must maintain exact alignment */
+.ascii-line {
+    font-family: var(--font-family);
+    white-space: pre;
+    line-height: 1.1;
+    color: var(--terminal-green);
+    margin: 8px 0;
+}
+
+.system-alert {
+    color: #ff3333;
+    text-shadow: 0 0 5px rgba(255, 51, 51, 0.8);
+    font-weight: bold;
+}
+
+.system-success {
+    color: #3df1ff;
+    text-shadow: 0 0 5px rgba(61, 241, 255, 0.8);
+    font-weight: bold;
+}
+
+.system-info {
+    color: #ffcc00;
+    text-shadow: 0 0 5px rgba(255, 204, 0, 0.8);
+}
+
+/* Choice Option Layouts */
+.choice-menu {
+    margin: 10px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-left: 10px;
+    border-left: 2px solid var(--border-color);
+    background: var(--terminal-bg-green);
+}
+
+/* Input Area styling */
+.input-line {
+    display: flex;
+    align-items: center;
+    margin-top: auto;
+}
+
+.input-line.hidden {
+    display: none;
+}
+
+.prompt-label {
+    color: var(--terminal-green);
+    margin-right: 8px;
+    font-weight: 600;
+    user-select: none;
+}
+
+.input-wrapper {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+}
+
+#terminal-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: transparent; /* hide real cursor & letters so we can draw custom typing */
+    caret-color: transparent;
+    font-family: var(--font-family);
+    font-size: 15px;
+    letter-spacing: normal;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 10;
+}
+
+/* Custom mirror text block overlay so we can render letters and the block cursor */
+.custom-caret {
+    display: inline-block;
+    width: 10px;
+    height: 18px;
+    background-color: var(--terminal-green);
+    margin-left: 1px;
+    animation: blink-caret 0.8s step-end infinite;
+    position: relative;
+    top: 2px;
+}
+
+/* Virtual render text */
+.virtual-input-text {
+    color: var(--terminal-green);
+    font-family: var(--font-family);
+    font-size: 15px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    display: flex;
+    align-items: center;
+}
+
+@keyframes blink-caret {
+    from, to { background-color: transparent }
+    50% { background-color: var(--terminal-green) }
+}
+
+/* ==========================================================================
+   MINI-GAMES STYLING
+   ========================================================================== */
+
+/* Chess Board Specific styling */
+.chess-container {
+    margin: 15px 0;
+    padding: 10px;
+    display: inline-block;
+    background: rgba(15, 8, 0, 0.4);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.chess-table {
+    border-collapse: collapse;
+    margin: 0 auto;
+    font-family: var(--font-family);
+    user-select: none;
+}
+
+.chess-table th {
+    color: var(--terminal-dim-green);
+    font-size: 0.85rem;
+    padding: 2px 4px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.chess-label {
+    color: var(--terminal-dim-green);
+    font-size: 0.85rem;
+    padding: 0 8px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.chess-cell {
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 1.6rem;
+    line-height: 1;
+    border: 1px solid rgba(255, 176, 0, 0.15);
+}
+
+.light-square {
+    background-color: rgba(255, 176, 0, 0.08);
+    color: var(--terminal-green);
+}
+
+.dark-square {
+    background-color: rgba(20, 10, 0, 0.5);
+    color: var(--terminal-green);
+}
+
+.highlighted-square {
+    background-color: rgba(255, 0, 0, 0.35) !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 8px #ffffff;
+}
+
+/* Curses-based Arcade Game Monospace Grid Layout */
+.arcade-board-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(10, 5, 0, 0.8);
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    max-width: 320px;
+}
+
+.arcade-screen {
+    font-family: var(--font-family);
+    white-space: pre;
+    line-height: 1.1;
+    font-size: 1.1rem;
+    color: var(--terminal-green);
+    letter-spacing: 0.1em;
+    background-color: #000;
+    padding: 10px;
+    border: 1px dashed var(--border-color);
+    margin-bottom: 10px;
+}
+
+.arcade-controls {
+    font-size: 0.75rem;
+    color: var(--terminal-dim-green);
+    text-align: center;
+    line-height: 1.4;
+}
+
+.arcade-score-bar {
+    border-top: 1px solid var(--border-color);
+    margin-top: 5px;
+    padding-top: 5px;
+    font-weight: bold;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Bold formatting for books */
+.bold-word {
+    font-weight: bold;
+}

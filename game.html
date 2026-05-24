@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape Room Terminal - Fifth of April</title>
+    <!-- Google Fonts for Retro Monospace look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=VT323&display=swap" rel="stylesheet">
+    <!-- Game Styling -->
+    <link rel="stylesheet" href="static/game.css">
+    <!-- Chess.js CDN for chess rule validation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+</head>
+<body>
+    <!-- Sound Unlock Overlay (Required for browser autoplay policies) -->
+    <div id="boot-overlay" class="boot-overlay">
+        <div class="boot-modal">
+            <h1 class="boot-title">FIFTH OF APRIL OS v1.0.4</h1>
+            <div class="boot-spinner"></div>
+            <p class="boot-text">Initialize audio interface & load memory modules...</p>
+            <button id="boot-btn" class="boot-btn">BOOT TERMINAL</button>
+        </div>
+    </div>
+
+    <!-- Main Terminal Container -->
+    <div class="terminal-container">
+        <!-- Scanlines and CRT effects -->
+        <div class="crt-overlay"></div>
+        <div class="crt-flicker"></div>
+        <div class="crt-vignette"></div>
+
+        <!-- Terminal Header -->
+        <header class="terminal-header">
+            <div class="header-left">
+                <span class="status-dot green"></span>
+                <span class="header-title">SESSION: ESCAPE_ROOM_TERMINAL</span>
+            </div>
+            <div class="header-right">
+                <button id="mute-btn" class="header-btn" title="Toggle Sound">🔊 VOL: 100%</button>
+                <a href="index.html" class="header-btn close-btn" title="Exit Terminal">✕ EXIT</a>
+            </div>
+        </header>
+
+        <!-- Terminal Body -->
+        <div class="terminal-body">
+            <!-- Terminal Screen / Output history -->
+            <main id="terminal-screen" class="terminal-screen">
+                <div id="output-log" class="output-log">
+                    <!-- Game output lines will be dynamically inserted here -->
+                </div>
+                <div id="input-line" class="input-line hidden">
+                    <span id="prompt-label" class="prompt-label">&gt; </span>
+                    <div class="input-wrapper">
+                        <input type="text" id="terminal-input" autocomplete="off" autofocus spellcheck="false">
+                        <span id="custom-caret" class="custom-caret"></span>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Terminal Sidebar (Inventory & Health) -->
+            <aside id="terminal-sidebar" class="terminal-sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">SYSTEM STATUS</div>
+                    <div class="status-item">HEALTH: <span id="sidebar-health">100/100</span></div>
+                    <div class="status-bar">
+                        <div id="sidebar-health-bar" class="status-bar-fill" style="width: 100%;"></div>
+                    </div>
+                    <div class="status-item" style="margin-top: 4px; font-size: 0.8rem; letter-spacing: 0.05em;">
+                        LEG STATUS: <span id="sidebar-leg" class="system-alert">BROKEN</span>
+                    </div>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-title">INVENTORY</div>
+                    <ul id="sidebar-inventory">
+                        <li class="empty-item">- EMPTY -</li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Core Game Logic -->
+    <script src="static/game.js" defer></script>
+</body>
+</html>
