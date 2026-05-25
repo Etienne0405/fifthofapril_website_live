@@ -2378,7 +2378,7 @@ async function enterPaintingRoom() {
     await Terminal.print("'What lies on the desk?'\n");
     const ans2 = (await Terminal.input()).trim().toLowerCase().replace(/\s+/g, "");
     
-    if (ans2 === "newspapers") {
+    if (ans2 === "newspapers" || ans2 === "oldnewspapers") {
         Terminal.write("'Correct again! You are quite clever.'\n", "system-success");
     } else {
         allCorrect = false;
