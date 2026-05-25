@@ -325,6 +325,7 @@ const GameState = {
     correctSequence: ["green", "blue", "red"],
     ghostEventTriggered: false,
     potionCollected: false,
+    clockUnlocked: false,
     difficulty: "medium",
     
     // Health system
@@ -1919,11 +1920,30 @@ async function endGame() {
 async function clockPuzzle() {
     await Terminal.print("You walk towards the clock, it is an old pendulum clock and you hear the ticking now that you are closer.\n");
     
+    if (!GameState.clockUnlocked && GameState.inventory.includes("small_key")) {
+        await Terminal.print("You notice a small keyhole on the side of the clock. You have a small key in your inventory.\nDo you want to use the small key to unlock the clock?\n1 - Yes\n2 - No\n");
+        const answer = (await Terminal.input()).trim();
+        if (answer === "1") {
+            GameState.clockUnlocked = true;
+            GameState.removeInventory("small_key");
+            await Terminal.print("You insert the small key and turn it. The clock casing clicks open.\n", "system-success");
+            await sleep(500);
+            await Terminal.print("Inside, you find a small letter. It reads:\n", "system-success");
+            await sleep(500);
+            await Terminal.print(`"All that puzzle solving just to find this letter, is there anything usefull on it you wonder..? \n\nMet vriendelijke groeten,\n\nEtienne\n\nPS. love the griep kinderen"\n`, "system-info");
+            await sleep(1500);
+        }
+    }
+    
     while (true) {
         let menu = "What will you do?\n\n" +
-            "1 - Check your leg, see if it's okay.\n" +
-            "2 - Change the time.\n" +
-            "3 - Go back.\n";
+            "1 - Check your leg, see if it's okay.\n";
+        if (GameState.clockUnlocked) {
+            menu += "2 - Change the time.\n";
+        } else {
+            menu += "2 - Change the time (Locked).\n";
+        }
+        menu += "3 - Go back.\n";
             
         Terminal.write(menu);
         const selection = (await Terminal.input()).trim();
@@ -1931,9 +1951,13 @@ async function clockPuzzle() {
         if (selection === "1") {
             checkLegHealth();
         } else if (selection === "2") {
-            await tryInitiateCangas();
-            if (GameState.health > 0) {
-                await changeTime();
+            if (!GameState.clockUnlocked) {
+                await Terminal.print("The clock is locked. You need a small key to open it.\n", "system-alert");
+            } else {
+                await tryInitiateCangas();
+                if (GameState.health > 0) {
+                    await changeTime();
+                }
             }
         } else if (selection === "3") {
             await tryInitiateCangas();
