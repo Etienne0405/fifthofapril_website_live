@@ -5,6 +5,22 @@
 // Helper sleep function
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+function escapeHtml(text) {
+    if (typeof text !== "string") return text;
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function applyUvHighlight(text) {
+    if (typeof text !== "string") return text;
+    const escaped = escapeHtml(text);
+    return escaped.replace(/\b(fall|fell|emptiness|colour|der)\b/gi, '<span class="uv-highlight">$1</span>');
+}
+
 // ==========================================================================
 // AUDIO MANAGER
 // ==========================================================================
@@ -228,7 +244,11 @@ const Terminal = {
         const line = document.createElement("div");
         line.className = "log-line";
         if (type) line.classList.add(type);
-        line.textContent = text;
+        if (GameState.inventory.includes("uv_light")) {
+            line.innerHTML = applyUvHighlight(text);
+        } else {
+            line.textContent = text;
+        }
         this.outputLog.appendChild(line);
         this.scrollToBottom();
     },
@@ -262,6 +282,10 @@ const Terminal = {
             line.textContent += text[i];
             this.scrollToBottom();
             await new Promise(r => setTimeout(r, delay));
+        }
+        
+        if (GameState.inventory.includes("uv_light")) {
+            line.innerHTML = applyUvHighlight(line.textContent);
         }
         
         this.isTypewriting = false;
@@ -300,6 +324,7 @@ const GameState = {
     shelfSequence: [],
     correctSequence: ["green", "blue", "red"],
     ghostEventTriggered: false,
+    potionCollected: false,
     difficulty: "medium",
     
     // Health system
@@ -723,7 +748,8 @@ async function optionMenuCandletable() {
             await voicePromise;
             AudioManager.setBgmVolume(0.6);
             
-            if (!GameState.inventory.includes("potion")) {
+            if (!GameState.potionCollected) {
+                GameState.potionCollected = true;
                 await Terminal.print("\n\nHey there is something strapped to the back!\n");
                 await sleep(500);
                 await Terminal.print("You picked up a potion.\n", "system-success");
@@ -2162,7 +2188,7 @@ const medicalFiles = [
     {name: "Lucas Garcia", age: 43, weight: "203 lbs", height: "6'3\"", disease: "Hemophilia", "health_info": "Blood clotting disorder, requires factor replacement therapy, bruising easily"},
     {name: "Ava Phillips", age: 30, weight: "139 lbs", height: "5'5\"", disease: "Amenorrhea", "health_info": "Absent menstrual periods, hormonal imbalance, requires medical investigation"},
     {name: "Noah Harris", age: 38, weight: "177 lbs", height: "5'10\"", disease: "Achilles Tendinitis", "health_info": "Tendon inflammation, ankle pain, requires rest and physical therapy"},
-    {name: "Emmanuelle Mimieux", age: 16, weight: "129 lbs", height: "5'4\"", disease: "Cyclic Vomiting Syndrome", "health_info": "Recurrent vomiting episodes, takes preventative medication"},
+    {name: "Emmanuelle Mimieux", age: 16, weight: "129 lbs", height: "5'4\"", disease: "Cyclic Vomiting Syndrome", "health_info": "The wanderer has recurrent vomiting episodes, he takes preventative medication."},
     {name: "Liam Taylor", age: 40, weight: "191 lbs", height: "6'1\"", disease: "Spondylitis", "health_info": "Spinal inflammation and stiffness, takes TNF inhibitors"},
     {name: "Isabella Carter", age: 29, weight: "137 lbs", height: "5'5\"", disease: "Metatarsalgia", "health_info": "Ball of foot pain, wears specialized footwear, takes pain medication"},
     {name: "Mason Ross", age: 44, weight: "198 lbs", height: "6'1\"", disease: "Hyperparathyroidism", "health_info": "Calcium imbalance, bone pain, requires surgical intervention"},
@@ -2227,7 +2253,11 @@ async function viewFiles() {
             details += `Height:         ${p.height}\n`;
             details += `Weight:         ${p.weight}\n`;
             details += `Diagnosed:      ${p.disease}\n`;
-            details += `Health Notes:   ${p.health_info}\n`;
+            let healthInfo = p.health_info;
+            if (p.name === "Emmanuelle Mimieux" && GameState.inventory.includes("uv_light")) {
+                healthInfo = "Der wanderer has recurrent vomiting episodes, he takes preventative medication";
+            }
+            details += `Health Notes:   ${healthInfo}\n`;
             details += "=".repeat(60) + "\n";
             
             Terminal.write(details, "ascii-line");
