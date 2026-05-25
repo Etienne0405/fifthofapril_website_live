@@ -18,7 +18,7 @@ function escapeHtml(text) {
 function applyUvHighlight(text) {
     if (typeof text !== "string") return text;
     const escaped = escapeHtml(text);
-    return escaped.replace(/\b(fall|fell|emptiness|colour|der)\b/gi, '<span class="uv-highlight">$1</span>');
+    return escaped.replace(/\b(fall|fell|emptiness|colour)\b/gi, '<span class="uv-highlight">$1</span>');
 }
 
 // ==========================================================================
@@ -150,6 +150,19 @@ const AudioManager = {
         // Base layer is active
         this.arcadeLayers[0].active = true;
         this.arcadeLayers[0].audio.volume = this.isMuted ? 0 : 0.4;
+        
+        // Sync active layers to base layer to prevent drifting and ensure clean looping
+        this.arcadeLayers[0].audio.addEventListener("timeupdate", () => {
+            if (this.arcadeLayers.length === 0 || !this.arcadeLayers[0].active) return;
+            const baseTime = this.arcadeLayers[0].audio.currentTime;
+            this.arcadeLayers.forEach((layer, idx) => {
+                if (idx > 0 && layer.active) {
+                    if (Math.abs(layer.audio.currentTime - baseTime) > 0.05) {
+                        layer.audio.currentTime = baseTime;
+                    }
+                }
+            });
+        });
     },
     
     updateArcadeLayers(score) {
@@ -244,8 +257,11 @@ const Terminal = {
         const line = document.createElement("div");
         line.className = "log-line";
         if (type) line.classList.add(type);
-        if (GameState.inventory.includes("uv_light")) {
+        if (GameState.inventory.includes("uv_light") && type === "lion-speech") {
             line.innerHTML = applyUvHighlight(text);
+        } else if (GameState.inventory.includes("uv_light") && text.includes("Der wanderer")) {
+            const escaped = escapeHtml(text);
+            line.innerHTML = escaped.replace(/\b(der)\b/gi, '<span class="uv-highlight">$1</span>');
         } else {
             line.textContent = text;
         }
@@ -284,7 +300,7 @@ const Terminal = {
             await new Promise(r => setTimeout(r, delay));
         }
         
-        if (GameState.inventory.includes("uv_light")) {
+        if (GameState.inventory.includes("uv_light") && type === "lion-speech") {
             line.innerHTML = applyUvHighlight(line.textContent);
         }
         
@@ -1607,154 +1623,155 @@ async function hiddenRoom() {
 }
 
 // ARCADE RUNNER
-async function playArcadeGame() {
-    AudioManager.startArcadeMusic();
-    
-    Terminal.clear();
-    for (let c = 3; c > 0; c--) {
+function playArcadeGame() {
+    return new Promise(async (resolve) => {
+        AudioManager.startArcadeMusic();
+        
         Terminal.clear();
-        Terminal.write(`\n\n\n\n\n\n\n      ${c}`, "system-info");
-        await sleep(1000);
-    }
-    
-    Terminal.clear();
-    
-    let obstacles = []; // { lane, y }
-    let score = 0;
-    let level = 1;
-    let frameDelay = 150;
-    let waveSpacing = 3;
-    let waveCounter = waveSpacing;
-    let playerLane = 1;
-    let active = true;
-    
-    const boardContainer = document.createElement("div");
-    boardContainer.className = "arcade-board-container";
-    
-    const screenEl = document.createElement("div");
-    screenEl.className = "arcade-screen";
-    boardContainer.appendChild(screenEl);
-    
-    const controlsEl = document.createElement("div");
-    controlsEl.className = "arcade-controls";
-    controlsEl.innerHTML = "A / D or ← / → to Move<br>Q to Exit";
-    boardContainer.appendChild(controlsEl);
-    
-    Terminal.outputLog.appendChild(boardContainer);
-    Terminal.scrollToBottom();
-    
-    function generateWave(lvl) {
-        const wave = [0, 0, 0];
-        const numObstacles = lvl < 3 ? 1 : (Math.random() < 0.5 ? 1 : 2);
-        const lanes = [0, 1, 2].sort(() => Math.random() - 0.5);
-        let placed = 0;
+        for (let c = 3; c > 0; c--) {
+            Terminal.clear();
+            Terminal.write(`\n\n\n\n\n\n\n      ${c}`, "system-info");
+            await sleep(1000);
+        }
         
-        for (let i = 0; i < lanes.length; i++) {
-            const lane = lanes[i];
-            if (lane > 0 && wave[lane - 1] === 1) continue;
-            if (lane < 2 && wave[lane + 1] === 1) continue;
-            wave[lane] = 1;
-            placed++;
-            if (placed === numObstacles) break;
-        }
-        return wave;
-    }
-    
-    const keyHandler = (e) => {
-        if (!active) return;
-        const key = e.key.toLowerCase();
-        if ((key === "a" || e.key === "ArrowLeft") && playerLane > 0) {
-            playerLane--;
-            render();
-        } else if ((key === "d" || e.key === "ArrowRight") && playerLane < 2) {
-            playerLane++;
-            render();
-        } else if (key === "q") {
-            active = false;
-        }
-    };
-    window.addEventListener("keydown", keyHandler);
-    
-    function render() {
-        let screenText = "  1   2   3\n";
-        for (let y = 0; y < 15; y++) {
-            let line = "  ";
-            for (let l = 0; l < 3; l++) {
-                let char = ".";
-                if (obstacles.some(ob => ob.lane === l && ob.y === y)) {
-                    char = "#";
-                }
-                if (playerLane === l && y === 14) {
-                    char = "A";
-                }
-                line += char + "   ";
+        Terminal.clear();
+        
+        let obstacles = []; // { lane, y }
+        let score = 0;
+        let level = 1;
+        let frameDelay = 150;
+        let waveSpacing = 3;
+        let waveCounter = waveSpacing;
+        let playerLane = 1;
+        let active = true;
+        
+        const boardContainer = document.createElement("div");
+        boardContainer.className = "arcade-board-container";
+        
+        const screenEl = document.createElement("div");
+        screenEl.className = "arcade-screen";
+        boardContainer.appendChild(screenEl);
+        
+        const controlsEl = document.createElement("div");
+        controlsEl.className = "arcade-controls";
+        controlsEl.innerHTML = "A / D or ← / → to Move<br>Q to Exit";
+        boardContainer.appendChild(controlsEl);
+        
+        Terminal.outputLog.appendChild(boardContainer);
+        Terminal.scrollToBottom();
+        
+        function generateWave(lvl) {
+            const wave = [0, 0, 0];
+            const numObstacles = lvl < 3 ? 1 : (Math.random() < 0.5 ? 1 : 2);
+            const lanes = [0, 1, 2].sort(() => Math.random() - 0.5);
+            let placed = 0;
+            
+            for (let i = 0; i < lanes.length; i++) {
+                const lane = lanes[i];
+                if (lane > 0 && wave[lane - 1] === 1) continue;
+                if (lane < 2 && wave[lane + 1] === 1) continue;
+                wave[lane] = 1;
+                placed++;
+                if (placed === numObstacles) break;
             }
-            screenText += line.trimEnd() + "\n";
-        }
-        screenText += "=============\n";
-        screenText += `Score: ${score}  Lvl: ${level}`;
-        screenEl.textContent = screenText;
-    }
-    
-    async function tick() {
-        if (!active) {
-            cleanup();
-            return;
+            return wave;
         }
         
-        if (waveCounter >= waveSpacing) {
-            const wave = generateWave(level);
-            wave.forEach((val, idx) => {
-                if (val) obstacles.push({ lane: idx, y: 0 });
-            });
-            waveCounter = 0;
-        } else {
-            waveCounter++;
+        const keyHandler = (e) => {
+            if (!active) return;
+            const key = e.key.toLowerCase();
+            if ((key === "a" || e.key === "ArrowLeft") && playerLane > 0) {
+                playerLane--;
+                render();
+            } else if ((key === "d" || e.key === "ArrowRight") && playerLane < 2) {
+                playerLane++;
+                render();
+            } else if (key === "q") {
+                active = false;
+            }
+        };
+        window.addEventListener("keydown", keyHandler);
+        
+        function render() {
+            let screenText = "  1   2   3\n";
+            for (let y = 0; y < 15; y++) {
+                let line = "  ";
+                for (let l = 0; l < 3; l++) {
+                    let char = ".";
+                    if (obstacles.some(ob => ob.lane === l && ob.y === y)) {
+                        char = "#";
+                    }
+                    if (playerLane === l && y === 14) {
+                        char = "A";
+                    }
+                    line += char + "   ";
+                }
+                screenText += line.trimEnd() + "\n";
+            }
+            screenText += "=============\n";
+            screenText += `Score: ${score}  Lvl: ${level}`;
+            screenEl.textContent = screenText;
         }
         
-        obstacles.forEach(ob => ob.y++);
-        obstacles = obstacles.filter(ob => ob.y < 15);
-        
-        const collision = obstacles.some(ob => ob.lane === playerLane && ob.y === 14);
-        if (collision) {
-            active = false;
-            cleanup(true);
-            return;
+        async function tick() {
+            if (!active) {
+                await cleanup();
+                return;
+            }
+            
+            if (waveCounter >= waveSpacing) {
+                const wave = generateWave(level);
+                wave.forEach((val, idx) => {
+                    if (val) obstacles.push({ lane: idx, y: 0 });
+                });
+                waveCounter = 0;
+            } else {
+                waveCounter++;
+            }
+            
+            obstacles.forEach(ob => ob.y++);
+            obstacles = obstacles.filter(ob => ob.y < 15);
+            
+            const collision = obstacles.some(ob => ob.lane === playerLane && ob.y === 14);
+            if (collision) {
+                active = false;
+                await cleanup(true);
+                return;
+            }
+            
+            score += 1;
+            const newLevel = Math.floor(score / 100) + 1;
+            if (newLevel > level) {
+                level = newLevel;
+                frameDelay = Math.max(30, 150 * Math.pow(0.9, level - 1));
+                waveSpacing = Math.max(1, 3 - Math.floor(level / 2));
+            }
+            
+            AudioManager.updateArcadeLayers(score);
+            render();
+            
+            setTimeout(tick, frameDelay);
         }
         
-        score += 1;
-        const newLevel = Math.floor(score / 100) + 1;
-        if (newLevel > level) {
-            level = newLevel;
-            frameDelay = Math.max(30, 150 * Math.pow(0.9, level - 1));
-            waveSpacing = Math.max(1, 3 - Math.floor(level / 2));
-        }
-        
-        AudioManager.updateArcadeLayers(score);
-        render();
-        
-        setTimeout(tick, frameDelay);
-    }
-    
-    function cleanup(gameOver = false) {
-        window.removeEventListener("keydown", keyHandler);
-        AudioManager.stopArcadeMusic();
-        AudioManager.playBgm("music/theme_song.wav");
-        
-        if (gameOver) {
-            screenEl.textContent += "\n\nGAME OVER!\nPress Enter to Exit";
-            Terminal.input().then(() => {
+        async function cleanup(gameOver = false) {
+            window.removeEventListener("keydown", keyHandler);
+            AudioManager.stopArcadeMusic();
+            AudioManager.playBgm("music/theme_song.wav");
+            
+            if (gameOver) {
+                screenEl.textContent += "\n\nGAME OVER!\nPress Enter to Exit";
+                await Terminal.input();
                 boardContainer.remove();
-                hiddenRoom();
-            });
-        } else {
-            boardContainer.remove();
-            hiddenRoom();
+                resolve();
+            } else {
+                boardContainer.remove();
+                resolve();
+            }
         }
-    }
-    
-    render();
-    tick();
+        
+        render();
+        tick();
+    });
 }
 
 // LION STATUE
@@ -1790,9 +1807,9 @@ async function lionstatue() {
             
             await Terminal.print("The lion moves its mouth slowly, and speaks to you in a vague low voice.");
             await sleep(500);
-            await Terminal.print(dialogueLine);
+            await Terminal.print(dialogueLine, "lion-speech");
             await sleep(500);
-            await Terminal.print('"Or would he one day find the light, drawn by courage or by chance, and in that company turn his silent world into one rich with colour and life?"');
+            await Terminal.print('"Or would he one day find the light, drawn by courage or by chance, and in that company turn his silent world into one rich with colour and life?"', "lion-speech");
             await sleep(500);
             Terminal.write("The lion closes its mouth.");
         } else if (selection === "3") {
