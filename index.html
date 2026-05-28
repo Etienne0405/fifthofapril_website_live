@@ -139,12 +139,13 @@
                 lbEmpty.classList.add('hidden');
                 
                 try {
-                    const res = await fetch('https://kvdb.io/Fo7oihsgjUj97nLNkW5SHL/leaderboard');
-                    if (res.ok) {
-                        const data = await res.json();
+                    // Fetch with cache-busting to prevent browser caching of leaderboard entries
+                    const res = await fetch('https://kvdb.io/Fo7oihsgjUj97nLNkW5SHL/leaderboard?_ts=' + Date.now(), { cache: 'no-store' });
+                    if (res.ok || res.status === 404) {
+                        const data = res.ok ? await res.json() : [];
                         lbLoading.classList.add('hidden');
                         
-                        if (data && data.length > 0) {
+                        if (data && Array.isArray(data) && data.length > 0) {
                             // Sort so that recent completions are at the top
                             const reversedData = [...data].reverse();
                             reversedData.forEach((player, idx) => {

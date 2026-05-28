@@ -1902,14 +1902,25 @@ async function endGame() {
     if (name) {
         Terminal.write("\nSaving your name to the Hall of Fame...", "system-info");
         try {
-            // 1. Fetch current leaderboard
-            const res = await fetch("https://kvdb.io/Fo7oihsgjUj97nLNkW5SHL/leaderboard");
+            // 1. Fetch current leaderboard (using cache-busting to prevent stale data overwrites)
+            const res = await fetch("https://kvdb.io/Fo7oihsgjUj97nLNkW5SHL/leaderboard?_ts=" + Date.now(), { cache: "no-store" });
             let leaderboard = [];
             if (res.ok) {
-                leaderboard = await res.json();
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    leaderboard = data;
+                }
+            } else if (res.status !== 404) {
+                throw new Error(`Database returned status ${res.status}`);
             }
-            // 2. Add name
-            leaderboard.push({ name: name, date: new Date().toLocaleDateString() });
+            // 2. Add name (using a standard DD-MM-YYYY date format)
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            const dateStr = `${day}-${month}-${year}`;
+            
+            leaderboard.push({ name: name, date: dateStr });
             
             // 3. Save leaderboard back
             const saveRes = await fetch("https://kvdb.io/Fo7oihsgjUj97nLNkW5SHL/leaderboard", {
